@@ -62,7 +62,7 @@ class Remove():
         self.removeSelect.append_text('No line Selected:')
     
         def icewm():
-            for line in open(USER_HOME+"/ANTIX-PROJECTS/add-key/py/"+DESKTOP+"/keys", "r").xreadlines():
+            for line in open(USER_HOME+"/"+DESKTOP+"/keys", "r").xreadlines():
                 if "#" not in line:
                     if re.search(r'^key', line):
                         line = re.sub(r'\n', '', line)
@@ -71,7 +71,7 @@ class Remove():
                         self.removeSelect.append_text(line)
         
         def fluxbox():
-            for line in open(USER_HOME+"/ANTIX-PROJECTS/add-key/py/"+DESKTOP+"/keys", "r").xreadlines():
+            for line in open(USER_HOME+"/"+DESKTOP+"/keys", "r").xreadlines():
                 if "#" not in line:
                     if re.search(r'^.*:', line):
                         line = re.sub(r'\n', '', line)
@@ -84,7 +84,7 @@ class Remove():
                         self.removeSelect.append_text(line)
         
         def jwm():
-            for line in open(USER_HOME+"/ANTIX-PROJECTS/add-key/py/"+DESKTOP+"/keys", "r").xreadlines():
+            for line in open(USER_HOME+"/"+DESKTOP+"/keys", "r").xreadlines():
                 if "#" not in line:
                     if re.search(r'^<Key', line):
                         line = re.sub(r'\n', '', line)
@@ -117,22 +117,22 @@ class Remove():
         def remove(lineMarker):
             item = self.removeSelect.get_active()
             lineNumber = 0
-            for line in open(USER_HOME+"/ANTIX-PROJECTS/add-key/py/"+DESKTOP+"/keys", "r").xreadlines():
+            for line in open(USER_HOME+"/"+DESKTOP+"/keys", "r").xreadlines():
                 if "#" not in line:
                     if re.search(r'^%s' % (lineMarker), line):
                         lineNumber += 1
                     if lineNumber == item:
                         line_to_remove = line
                     else:
-                        text = file((USER_HOME+"/ANTIX-PROJECTS/add-key/py/"+DESKTOP+"/keys.new"), "a")
+                        text = file((USER_HOME+"/"+DESKTOP+"/keys.new"), "a")
                         text.write (line) 
                         text.close()
                 else:
-                    text = file((USER_HOME+"/ANTIX-PROJECTS/add-key/py/"+DESKTOP+"/keys.new"), "a")
+                    text = file((USER_HOME+"/"+DESKTOP+"/keys.new"), "a")
                     text.write (line) 
                     text.close()
                         
-            os_system_line="mv "+USER_HOME+"/ANTIX-PROJECTS/add-key/py/"+DESKTOP+"/keys.new "+USER_HOME+"/ANTIX-PROJECTS/add-key/py/"+DESKTOP+"/keys"
+            os_system_line="mv "+USER_HOME+"/"+DESKTOP+"/keys.new "+USER_HOME+"/"+DESKTOP+"/keys"
             os.system(os_system_line)
             Success("line has been removed")
             self.updateRemoveSelect()
@@ -268,7 +268,7 @@ class Add():
         options[first_key]()
         options[second_key]()
         def check_key_combination():
-            for line in open(USER_HOME+"/ANTIX-PROJECTS/add-key/py/"+DESKTOP+"/keys", "r").xreadlines():
+            for line in open(USER_HOME+"/"+DESKTOP+"/keys", "r").xreadlines():
                 if (self.key_combination) in line:
                     sys.exit(Error("That key comination has been used"))
         
@@ -276,7 +276,7 @@ class Add():
             self.key_combination = self.write_line+third_key
             check_key_combination()
             self.write_line = 'key "'+self.write_line+third_key+'" '+command_to_add
-            text = file((USER_HOME+"/ANTIX-PROJECTS/add-key/py/"+DESKTOP+"/keys"), "a")
+            text = file((USER_HOME+"/"+DESKTOP+"/keys"), "a")
             text.write (self.write_line+"\n")
             text.close()
             
@@ -284,7 +284,7 @@ class Add():
             self.key_combination = self.write_line+third_key
             check_key_combination()
             self.write_line = self.write_line+third_key+' :'+command_to_add
-            text = file((USER_HOME+"/ANTIX-PROJECTS/add-key/py/"+DESKTOP+"/keys"), "a")
+            text = file((USER_HOME+"/"+DESKTOP+"/keys"), "a")
             text.write (self.write_line+"\n")
             text.close()
            
@@ -292,18 +292,18 @@ class Add():
             self.key_combination = self.write_line+third_key
             check_key_combination()
             self.write_line = '<Key '+self.write_line+'key="'+third_key+'">'+command_to_add+'</Key>'
-            for line in open(USER_HOME+"/ANTIX-PROJECTS/add-key/py/"+DESKTOP+"/keys", "r").xreadlines():
+            for line in open(USER_HOME+"/"+DESKTOP+"/keys", "r").xreadlines():
                 if "<!-- Key bindings -->" in line:
-                    text = file((USER_HOME+"/ANTIX-PROJECTS/add-key/py/"+DESKTOP+"/keys.new"), "a")
+                    text = file((USER_HOME+"/"+DESKTOP+"/keys.new"), "a")
                     text.write (line) 
                     text.write (self.write_line+"\n")
                     text.close()
                 else:
-                    text = file((USER_HOME+"/ANTIX-PROJECTS/add-key/py/"+DESKTOP+"/keys.new"), "a")
+                    text = file((USER_HOME+"/"+DESKTOP+"/keys.new"), "a")
                     text.write (line) 
                     text.close()
             
-            #os_system_line="mv "+USER_HOME+"/ANTIX-PROJECTS/add-key/py/"+DESKTOP+"/keys.new "+USER_HOME+"/ANTIX-PROJECTS/add-key/py/"+DESKTOP+"/keys"
+            #os_system_line="mv "+USER_HOME+"/"+DESKTOP+"/keys.new "+USER_HOME+"/"+DESKTOP+"/keys"
             #os.system(os_system_line)
            
         options = {"icewm" : icewm, "fluxbox" : fluxbox, "jwm" : jwm}
