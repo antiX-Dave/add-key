@@ -1,0 +1,11 @@
+backup your current setup of add-key, simply copy /usr/local/bin/add-key to a safe location.
+copy ./add-key to /usr/local/bin/add-key
+give it execute permissions
+chmod 755 /usr/local/bin/add-key
+
+copy desktop_tool.py to /usr/local/bin/desktop_tool.py as root
+    cp ./desktop_tool.py /usr/local/bin/desktop_tool.py
+and give it execute permisions
+    chmod 755 /usr/local/bin/desktop_tool.py
+    
+run add-key as you normally do to enjoy.

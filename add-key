@@ -2,7 +2,7 @@
 # File Name: add-key
 # Dependencies: fluxbox or icewm or jwm, desktop_tool, gtk, pygtk,
 # python os mod, python re mod, python sys mod, yad
-# Version: 2.0
+# Version: 2.1
 # Purpose:  Add keybinds to fluxbox and / or jwm and / or icewm key files
 # Authors: Dave
 
@@ -30,9 +30,12 @@ import re
 import os
 import sys
 
-DESKTOP = os.environ['DESKTOP_CODE']
-DESKTOP = re.sub(r'rox-', '', DESKTOP)
 USER_HOME = os.environ['HOME']
+DISPLAY = os.environ['DISPLAY']
+with open(USER_HOME+"/.antix-session/desktop-code"+DISPLAY, "r") as f:
+  DESKTOP = f.readline()
+  DESKTOP = re.sub(r'\n', '', DESKTOP)
+DESKTOP = re.sub(r'.*-', '', DESKTOP)
 LOCATION=(USER_HOME+"/."+DESKTOP+"/keys")
 
 class Error:
@@ -62,7 +65,7 @@ class Remove():
         self.removeSelect.append_text('No line Selected:')
     
         def icewm():
-            for line in open(USER_HOME+"/"+DESKTOP+"/keys", "r").xreadlines():
+            for line in open(LOCATION, "r").xreadlines():
                 if "#" not in line:
                     if re.search(r'^key', line):
                         line = re.sub(r'\n', '', line)
@@ -71,7 +74,7 @@ class Remove():
                         self.removeSelect.append_text(line)
         
         def fluxbox():
-            for line in open(USER_HOME+"/"+DESKTOP+"/keys", "r").xreadlines():
+            for line in open(LOCATION, "r").xreadlines():
                 if "#" not in line:
                     if re.search(r'^.*:', line):
                         line = re.sub(r'\n', '', line)
@@ -84,7 +87,7 @@ class Remove():
                         self.removeSelect.append_text(line)
         
         def jwm():
-            for line in open(USER_HOME+"/"+DESKTOP+"/keys", "r").xreadlines():
+            for line in open(LOCATION, "r").xreadlines():
                 if "#" not in line:
                     if re.search(r'^<Key', line):
                         line = re.sub(r'\n', '', line)
@@ -117,22 +120,22 @@ class Remove():
         def remove(lineMarker):
             item = self.removeSelect.get_active()
             lineNumber = 0
-            for line in open(USER_HOME+"/"+DESKTOP+"/keys", "r").xreadlines():
+            for line in open(LOCATION, "r").xreadlines():
                 if "#" not in line:
                     if re.search(r'^%s' % (lineMarker), line):
                         lineNumber += 1
                     if lineNumber == item:
                         line_to_remove = line
                     else:
-                        text = file((USER_HOME+"/"+DESKTOP+"/keys.new"), "a")
+                        text = file((LOCATION+".new"), "a")
                         text.write (line) 
                         text.close()
                 else:
-                    text = file((USER_HOME+"/"+DESKTOP+"/keys.new"), "a")
+                    text = file((LOCATION+".new"), "a")
                     text.write (line) 
                     text.close()
                         
-            os_system_line="mv "+USER_HOME+"/"+DESKTOP+"/keys.new "+USER_HOME+"/"+DESKTOP+"/keys"
+            os_system_line="mv "+LOCATION+".new "+LOCATION
             os.system(os_system_line)
             Success("line has been removed")
             self.updateRemoveSelect()
@@ -238,7 +241,7 @@ class Add():
                 self.write_line= self.write_line+key
             
             def fluxbox():
-                key='Mod4 '
+                key='Mod1 '
                 self.write_line= self.write_line+key
            
             def jwm():
@@ -254,7 +257,7 @@ class Add():
                 self.write_line= self.write_line+key
             
             def fluxbox():
-                key='Mod1 '
+                key='Mod4 '
                 self.write_line= self.write_line+key
            
             def jwm():
@@ -264,11 +267,27 @@ class Add():
             options = {"icewm" : icewm, "fluxbox" : fluxbox, "jwm" : jwm}
             options[DESKTOP]()
             
-        options = {"Control" : Control, "Alt" : Alt, "Super" : Super}
+        def NoKey():
+            def icewm():
+                key=''
+                self.write_line= self.write_line+key
+            
+            def fluxbox():
+                key=''
+                self.write_line= self.write_line+key
+           
+            def jwm():
+                key=''
+                self.write_line= self.write_line+key
+           
+            options = {"icewm" : icewm, "fluxbox" : fluxbox, "jwm" : jwm}
+            options[DESKTOP]()
+            
+        options = {"Control" : Control, "Alt" : Alt, "Super" : Super, "None" : NoKey}
         options[first_key]()
         options[second_key]()
         def check_key_combination():
-            for line in open(USER_HOME+"/"+DESKTOP+"/keys", "r").xreadlines():
+            for line in open(LOCATION, "r").xreadlines():
                 if (self.key_combination) in line:
                     sys.exit(Error("That key comination has been used"))
         
@@ -276,15 +295,15 @@ class Add():
             self.key_combination = self.write_line+third_key
             check_key_combination()
             self.write_line = 'key "'+self.write_line+third_key+'" '+command_to_add
-            text = file((USER_HOME+"/"+DESKTOP+"/keys"), "a")
+            text = file((LOCATION), "a")
             text.write (self.write_line+"\n")
             text.close()
             
         def fluxbox():
             self.key_combination = self.write_line+third_key
             check_key_combination()
-            self.write_line = self.write_line+third_key+' :'+command_to_add
-            text = file((USER_HOME+"/"+DESKTOP+"/keys"), "a")
+            self.write_line = self.write_line+third_key+' : Exec '+command_to_add
+            text = file((LOCATION), "a")
             text.write (self.write_line+"\n")
             text.close()
            
@@ -292,18 +311,18 @@ class Add():
             self.key_combination = self.write_line+third_key
             check_key_combination()
             self.write_line = '<Key '+self.write_line+'key="'+third_key+'">'+command_to_add+'</Key>'
-            for line in open(USER_HOME+"/"+DESKTOP+"/keys", "r").xreadlines():
+            for line in open(LOCATION, "r").xreadlines():
                 if "<!-- Key bindings -->" in line:
-                    text = file((USER_HOME+"/"+DESKTOP+"/keys.new"), "a")
+                    text = file((LOCATION+".new"), "a")
                     text.write (line) 
                     text.write (self.write_line+"\n")
                     text.close()
                 else:
-                    text = file((USER_HOME+"/"+DESKTOP+"/keys.new"), "a")
+                    text = file((LOCATION+".new"), "a")
                     text.write (line) 
                     text.close()
             
-            #os_system_line="mv "+USER_HOME+"/"+DESKTOP+"/keys.new "+USER_HOME+"/"+DESKTOP+"/keys"
+            #os_system_line="mv "+USER_HOME+"/"+DESKTOP+"/keys.new "+LOCATION
             #os.system(os_system_line)
            
         options = {"icewm" : icewm, "fluxbox" : fluxbox, "jwm" : jwm}
@@ -344,6 +363,7 @@ class Add():
         self.key2.append_text("Control")
         self.key2.append_text("Alt")
         self.key2.append_text("Super")
+        self.key2.append_text("None")
         vbox.pack_start(self.key2)
         self.key2.set_active(0)
         self.key2.show()
@@ -417,6 +437,6 @@ class mainWindow():
 
 
 if os.path.isfile(LOCATION) == (False):
-    sys.exit(Error("There is no file ~/.%s/keys \nThe session variable DESKTOP_CODE='%s' \nincorrectly matches your system" % ((DESKTOP), (DESKTOP)) ))
+    sys.exit(Error("There is no file ~/.%s/keys \nThe session's DESKTOP_CODE='%s' \nincorrectly matches your system" % ((DESKTOP), (DESKTOP)) ))
 mainWindow()
 gtk.main()
